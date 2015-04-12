@@ -1,0 +1,111 @@
+﻿Ancora Grammar
+
+File				:= HeaderBlock (Namespace | Type | Function | Macro | Rule)*
+HeaderBlock			:= HeaderUsing*
+HeaderUsing			:= "using" TypeName ;
+Namespace			:= "namespace" Identifier { Type* }
+Function			:= "func" FunctionDeclaration
+Macro				:= "macro" DeclarationTerm* TypeSpecifier? Block
+Rule				:= "rule" RuleDeclaration
+DeclarationTerm		:= Identifier | ( '(' Identifier TypeSpecifier ')' )
+
+TypeIdentifier		:= Identifier ('<' Identifier (, Identifier)* '>')?
+TypeName			:= TypeIdentifier (. TypeIdentifier)*
+Identifier			:= [Any non delimeter, non operator character][Any non delimeter character]*
+TypeSpecifier		:= : TypeName
+
+Block				:= Body ("error" Body)? ("post" Body)?
+Body				:= Statement | RawBlock;
+RawBlock			:= { Statement* }
+LambdaExpression	:= => Expression
+
+Type				:= "type" TypeIdentifier TypeSpecifier? { Member* }
+Member				:= Field | Method | Rule
+Field				:= "var" Identifier TypeSpecifier (= Expression)? ;
+Method				:= "method" FunctionDeclaration
+
+FunctionDeclaration := Identifier '(' (Identifier TypeSpecifier)* ')' TypeSpecifier
+							(Block | (LambdaExpression ;))
+
+RuleDeclaration		:= Modifier? RuleName '(' (Identifier TypeSpecifier)* ')' TypeSpecifier
+							WhenClause? 
+							(Block | (LambdaExpression ;))
+RuleName			:= Identifier+
+WhenClause			:= "when" (Block | LambdaExpression)
+
+
+Statement			:= Local | Let | If | Loop | Break | Continue | FuncOrMacro | Consider | Follow | ASMBlock | Return
+Local				:= "var" Identifier TypeSpecifier? (= Expression)? ;
+Let					:= "let" LValue = Expression ;
+If					:= "if" Parenthetical Body ("else" Body)?
+Loop				:= "loop" Identifier? Body
+Break				:= "break" Identifier? ;
+Continue			:= "continue" Identifier? ;
+
+FunctionCall		:= Term ArgList								;; Function calls and Macro Invokations 
+Invokation			:= (Term | Identifier) Body					;; cannot always be differentiated until
+																;; the resolution phase.
+FuncOrMacro			:= (Term | Identifier | ArgList)+ (; | Body)
+ArgList				:= '(' Expression? (, Expression)* ')'
+
+LValue				:= Identifier | MemberAccess | Indexer
+MemberAccess		:= Term . Identifier
+Expression			:= Term | BinaryOperation | New | Lambda | Value
+Term				:= Parenthetical | Identifier | Number | String | MemberAccess | Indexer | Cast | List | FunctionCall | BracketInvokation
+Parenthetical		:= '(' Expression ')'
+Indexer				:= Term @ Term
+Cast				:= Term ">>>" TypeName	; Casting should be 'dynamic'. It's for base-to-child casts only, and for casting between UnitTyped numerics.
+BinaryOperation		:= Term Operator Term
+BracketInvokation	:= [ Invokation ]
+Return				:= "return" Expression ;
+
+Consider			:= "consider" RuleName ArgList
+Follow				:= "follow" RuleName ArgList
+Value				:= "value" "of"? RuleName ArgList
+
+New					:= "new" TypeName InitializerBlock?
+InitializerBlock	:= { Initializer* }
+Initializer			:= "let" Identifier = Expression ;
+
+List				:= { Term* }
+Lambda				:= "lambda" FunctionDeclaration
+
+String				:= BasicString | ComplexString
+BasicString			:= [Ordinary quote-delimited string]
+ComplexString		:= @ '"' (Text | EmbeddedExpression)* '"'
+Text				:= [^["]+ 
+EmbeddedExpression	:= [ Expression ]
+
+RawNumber			:= \d+(\.\d+)?
+Number				:= RawNumber UnitType?
+UnitType			:= UnitSet (/ UnitSet)?
+UnitSet				:= Unit+
+Unit				:= UnitIdentifier (^ RawNumber)?
+
+ASMBlock			:= "asm" RegisterAssignment* { Instruction* }
+
+Delimeter symbols	:= []{}()\s\t\r\n.:;
+
+Default operator table
+0	||
+0	&&
+0	==
+0	!=
+0	<
+0	>
+0	<=
+0	>=
+
+1	+
+1	-
+1	&
+1	|
+
+2	*
+2	/
+2	%
+
+
+A while loop macro:
+
+macro while (condition:bool) { loop { if (! %condition%) break; %body% } }

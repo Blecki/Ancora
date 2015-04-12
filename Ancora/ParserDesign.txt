@@ -1,0 +1,7 @@
+﻿Generic recursive descent parser design
+
+Modular 'parse' functions
+	Result: An AST node of some kind.
+
+Parsing might be ambiquious. Parsers should explore all posibilities at once.
+
