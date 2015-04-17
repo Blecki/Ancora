@@ -119,6 +119,21 @@ namespace Ancora
             return r;
         }
 
+        public Parser DelimitedList(Parser TermParser, char SeperatorChar)
+        {
+            var r = Sequence(
+                    TermParser,
+                    NoneOrMany(
+                        Sequence(
+                            Character(SeperatorChar),
+                            TermParser.PassThrough()
+                        )
+                    ).Flatten()
+                );
+            r.Flags = DefaultParserFlags;
+            return r;
+        }
+
         #endregion
 
     }

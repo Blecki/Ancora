@@ -104,6 +104,11 @@ namespace Ancora
             return new Parsers.Sequence(LHS, new Parsers.Character(RHS));
         }
 
+        public static Parsers.Sequence operator +(char LHS, Parser RHS)
+        {
+            return new Parsers.Sequence(new Parsers.Character(LHS), RHS);
+        }
+
         public static Parsers.Sequence operator +(Parser LHS, String RHS)
         {
             return new Parsers.Sequence(LHS, new Parsers.KeyWord(RHS));
