@@ -22,7 +22,7 @@ namespace Ancora.Parsers
             return new Identifier(IsLegalStartCharacter, IsLegalCharacter);
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             if (InputStream.AtEnd || !IsLegalStartCharacter(InputStream.Next)) return ParseResult.Failure;
 

@@ -20,7 +20,7 @@ namespace Ancora.Parsers
             return new Debug(CallOnParse);
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             CallOnParse(InputStream);
             return new ParseResult { ParseSucceeded = true, StreamState = InputStream };

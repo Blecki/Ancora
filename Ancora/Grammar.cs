@@ -9,77 +9,104 @@ namespace Ancora
     public class Grammar
     {
         public Parser Root = null;
+        public ParserFlags DefaultParserFlags = ParserFlags.NONE;
 
         #region Parser Factory Functions
 
-        public static Parsers.Sequence Sequence(params Parser[] SubParsers)
+        public Parsers.Sequence Sequence(params Parser[] SubParsers)
         {
-            return new Parsers.Sequence(SubParsers);
+            var r = new Parsers.Sequence(SubParsers);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.Alternative Alternative(params Parser[] SubParsers)
+        public Parsers.Alternative Alternative(params Parser[] SubParsers)
         {
-            return new Parsers.Alternative(SubParsers);
+            var r = new Parsers.Alternative(SubParsers);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.Character Character(Char C)
+        public Parsers.Character Character(Char C)
         {
-            return new Parsers.Character(C);
+            var r = new Parsers.Character(C);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.Expression Expression(Parser TermParser, Parser OperatorParser, OperatorTable OperatorTable)
+        public Parsers.Expression Expression(Parser TermParser, Parser OperatorParser, OperatorTable OperatorTable)
         {
-            return new Parsers.Expression(TermParser, OperatorParser, OperatorTable);
+            var r = new Parsers.Expression(TermParser, OperatorParser, OperatorTable);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.Identifier Identifier(Func<Char, bool> IsLegalStartCharacter, Func<Char, bool> IsLegalCharacter)
+        public Parsers.Identifier Identifier(Func<Char, bool> IsLegalStartCharacter, Func<Char, bool> IsLegalCharacter)
         {
-            return new Parsers.Identifier(IsLegalStartCharacter, IsLegalCharacter);
+            var r = new Parsers.Identifier(IsLegalStartCharacter, IsLegalCharacter);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.KeyWord Keyword(String Word)
+        public Parsers.KeyWord Keyword(String Word)
         {
-            return new Parsers.KeyWord(Word);
+            var r = new Parsers.KeyWord(Word);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.LateBound LateBound()
+        public Parsers.LateBound LateBound()
         {
-            return new Parsers.LateBound();
+            var r = new Parsers.LateBound();
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.Maybe Maybe(Parser SubParser)
+        public Parsers.Maybe Maybe(Parser SubParser)
         {
-            return new Parsers.Maybe(SubParser);
+            var r = new Parsers.Maybe(SubParser);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.NoneOrMany NoneOrMany(Parser SubParser)
+        public Parsers.NoneOrMany NoneOrMany(Parser SubParser)
         {
-            return new Parsers.NoneOrMany(SubParser);
+            var r = new Parsers.NoneOrMany(SubParser);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.OneOrMany OneOrMany(Parser SubParser)
+        public Parsers.OneOrMany OneOrMany(Parser SubParser)
         {
-            return new Parsers.OneOrMany(SubParser);
+            var r = new Parsers.OneOrMany(SubParser);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.Operator Operator(OperatorTable OperatorTable)
+        public Parsers.Operator Operator(OperatorTable OperatorTable)
         {
-            return new Parsers.Operator(OperatorTable);
+            var r = new Parsers.Operator(OperatorTable);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.Token Token(Func<Char, bool> IsLegalCharacter)
+        public Parsers.Token Token(Func<Char, bool> IsLegalCharacter)
         {
-            return new Parsers.Token(IsLegalCharacter);
+            var r = new Parsers.Token(IsLegalCharacter);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parsers.Debug Debug(Action<StringIterator> CallOnParse)
+        public Parsers.Debug Debug(Action<StringIterator> CallOnParse)
         {
-            return new Parsers.Debug(CallOnParse);
+            var r = new Parsers.Debug(CallOnParse);
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
-        public static Parser DelimitedList(Parser TermParser, Parser SeperatorParser)
+        public Parser DelimitedList(Parser TermParser, Parser SeperatorParser)
         {
-            return Sequence(
+            var r = Sequence(
                     TermParser,
                     NoneOrMany(
                         Sequence(
@@ -88,6 +115,8 @@ namespace Ancora
                         )
                     ).Flatten()
                 );
+            r.Flags = DefaultParserFlags;
+            return r;
         }
 
         #endregion

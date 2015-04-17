@@ -20,7 +20,7 @@ namespace Ancora.Parsers
             return new Maybe(SubParser);
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             var subResult = SubParser.Parse(InputStream);
             if (subResult.ParseSucceeded) return subResult.ApplyFlags(Flags);

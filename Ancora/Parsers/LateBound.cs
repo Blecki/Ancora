@@ -45,7 +45,7 @@ namespace Ancora.Parsers
             return r;
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             if (SubParser == null) return ParseResult.Failure;
             var result = SubParser.Parse(InputStream);

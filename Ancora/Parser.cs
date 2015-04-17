@@ -19,6 +19,8 @@ namespace Ancora
 
     public abstract class Parser
     {
+        public static Parser WhitespaceParser = new Parsers.Maybe(new Parsers.Token(c => "\t\r\n ".Contains(c)));
+
         internal String AstNodeType = null;
         internal ParserFlags Flags = ParserFlags.NONE;
 
@@ -53,6 +55,20 @@ namespace Ancora
             return r;
         }
 
+        public Parser IgnoreLeadingWhitespace()
+        {
+            var r = this.Clone();
+            r.Flags |= ParserFlags.IGNORE_LEADING_WHITESPACE;
+            return r;
+        }
+
+        public Parser IgnoreTrailingWhitespace()
+        {
+            var r = this.Clone();
+            r.Flags |= ParserFlags.IGNORE_TRAILING_WHITESPACE;
+            return r;
+        }
+
         #endregion
 
         protected Parser Clone()
@@ -63,7 +79,17 @@ namespace Ancora
             return r;
         }
 
-        public abstract ParseResult Parse(StringIterator InputStream);
+        public ParseResult Parse(StringIterator InputStream)
+        {
+            if ((Flags & ParserFlags.IGNORE_LEADING_WHITESPACE) == ParserFlags.IGNORE_LEADING_WHITESPACE)
+                InputStream = Parser.WhitespaceParser.Parse(InputStream).StreamState;
+            var r = ImplementParse(InputStream);
+            if (r.ParseSucceeded && (Flags & ParserFlags.IGNORE_TRAILING_WHITESPACE) == ParserFlags.IGNORE_TRAILING_WHITESPACE)
+                r.StreamState = Parser.WhitespaceParser.Parse(r.StreamState).StreamState;
+            return r;
+        }
+
+        protected abstract ParseResult ImplementParse(StringIterator InputStream);
         protected abstract Parser ImplementClone();
 
         #region Construction Ops
@@ -86,11 +112,6 @@ namespace Ancora
         public static Parsers.Alternative operator |(Parser LHS, Parser RHS)
         {
             return new Parsers.Alternative(LHS, RHS);
-        }
-
-        public static Parser operator *(Parser LHS, Parser RHS)
-        {
-            return Grammar.DelimitedList(LHS, RHS);
         }
 
         #endregion

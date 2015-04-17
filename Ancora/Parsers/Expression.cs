@@ -27,7 +27,7 @@ namespace Ancora.Parsers
             return new Expression(TermParser, OperatorParser, OperatorTable);
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             var firstLhs = TermParser.Parse(InputStream);
             if (!firstLhs.ParseSucceeded || firstLhs.Node == null) return ParseResult.Failure;

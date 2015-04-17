@@ -20,7 +20,7 @@ namespace Ancora.Parsers
             return new Token(IsLegalCharacter);
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             var text = "";
             while (!InputStream.AtEnd && IsLegalCharacter(InputStream.Next))

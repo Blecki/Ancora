@@ -20,7 +20,7 @@ namespace Ancora.Parsers
             return new KeyWord(Word);
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             var text = InputStream.Peek(Word.Length);
             if (text == Word)

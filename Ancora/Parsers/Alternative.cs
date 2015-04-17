@@ -27,7 +27,7 @@ namespace Ancora.Parsers
             return new Alternative(SubParsers.ToArray());
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
            foreach (var sub in SubParsers)
            {

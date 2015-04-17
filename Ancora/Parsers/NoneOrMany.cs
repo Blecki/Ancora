@@ -20,7 +20,7 @@ namespace Ancora.Parsers
             return new NoneOrMany(SubParser);
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             var r = new AstNode { NodeType = String.IsNullOrEmpty(AstNodeType) ? "UNNAMED" : AstNodeType };
             AstNode passThroughChild = null;

@@ -20,7 +20,7 @@ namespace Ancora.Parsers
             return new Operator(OperatorTable);
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             if (InputStream.AtEnd) return ParseResult.Failure;
 

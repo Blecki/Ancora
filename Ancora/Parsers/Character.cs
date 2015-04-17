@@ -20,7 +20,7 @@ namespace Ancora.Parsers
             return new Character(Char);
         }
 
-        public override ParseResult Parse(StringIterator InputStream)
+        protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             if (InputStream.AtEnd || InputStream.Next != Char)
                 return ParseResult.Failure;
