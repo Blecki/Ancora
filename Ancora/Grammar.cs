@@ -10,6 +10,8 @@ namespace Ancora
     {
         public Parser Root = null;
 
+        #region Parser Factory Functions
+
         public static Parsers.Sequence Sequence(params Parser[] SubParsers)
         {
             return new Parsers.Sequence(SubParsers);
@@ -87,5 +89,8 @@ namespace Ancora
                     ).Flatten()
                 );
         }
+
+        #endregion
+
     }
 }

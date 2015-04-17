@@ -17,12 +17,12 @@ namespace Ancora.Parsers
 
         public static Alternative operator |(Alternative LHS, Parser RHS)
         {
-            var r = LHS._Clone() as Alternative;
+            var r = LHS.Clone() as Alternative;
             r.SubParsers.Add(RHS);
             return r;
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             return new Alternative(SubParsers.ToArray());
         }

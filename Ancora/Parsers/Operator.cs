@@ -15,7 +15,7 @@ namespace Ancora.Parsers
             this.OperatorTable = OperatorTable;
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             return new Operator(OperatorTable);
         }
@@ -36,7 +36,7 @@ namespace Ancora.Parsers
                     return new ParseResult
                     {
                         ParseSucceeded = true,
-                        Node = ShouldCreateAst ? new AstNode
+                        Node = (Flags & ParserFlags.CREATE_AST) == ParserFlags.CREATE_AST ? new AstNode
                         {
                             NodeType = AstNodeType,
                             Value = opSoFar

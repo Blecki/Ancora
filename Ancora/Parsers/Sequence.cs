@@ -17,26 +17,26 @@ namespace Ancora.Parsers
 
         public static Sequence operator +(Sequence LHS, Parser RHS)
         {
-            var r = LHS._Clone() as Sequence;
+            var r = LHS.Clone() as Sequence;
             r.SubParsers.Add(RHS);
             return r;
         }
 
         public static Sequence operator +(Sequence LHS, char RHS)
         {
-            var r = LHS._Clone() as Sequence;
+            var r = LHS.Clone() as Sequence;
             r.SubParsers.Add(new Character(RHS));
             return r;
         }
 
         public static Sequence operator +(Sequence LHS, String RHS)
         {
-            var r = LHS._Clone() as Sequence;
+            var r = LHS.Clone() as Sequence;
             r.SubParsers.Add(new KeyWord(RHS));
             return r;
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             return new Sequence(SubParsers.ToArray());
         }

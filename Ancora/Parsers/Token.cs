@@ -15,7 +15,7 @@ namespace Ancora.Parsers
             this.IsLegalCharacter = IsLegalCharacter;
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             return new Token(IsLegalCharacter);
         }

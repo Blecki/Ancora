@@ -15,7 +15,7 @@ namespace Ancora.Parsers
             this.Char = Char;
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             return new Character(Char);
         }
@@ -27,7 +27,7 @@ namespace Ancora.Parsers
             return new ParseResult 
             { 
                 ParseSucceeded = true, 
-                Node = ShouldCreateAst ? new AstNode { NodeType = AstNodeType, Value = Char } : null,
+                Node = ((Flags & ParserFlags.CREATE_AST) == ParserFlags.CREATE_AST) ? new AstNode { NodeType = AstNodeType, Value = Char } : null,
                 StreamState = InputStream.Advance(),
                 Flags = Flags
             };

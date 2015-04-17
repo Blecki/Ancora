@@ -15,7 +15,7 @@ namespace Ancora.Parsers
             this.Word = Word;
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             return new KeyWord(Word);
         }
@@ -27,7 +27,7 @@ namespace Ancora.Parsers
                 return new ParseResult
                 {
                     ParseSucceeded = true,
-                    Node = ShouldCreateAst ? new AstNode
+                    Node = ((Flags & ParserFlags.CREATE_AST) == ParserFlags.CREATE_AST) ? new AstNode
                     {
                         NodeType = AstNodeType,
                         Value = Word

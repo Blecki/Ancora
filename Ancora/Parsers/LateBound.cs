@@ -27,7 +27,7 @@ namespace Ancora.Parsers
             if (Clones != null) foreach (var clone in Clones) clone.SetSubParser(SubParser);
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             if (SubParser != null) //Okay, this has already been bound.
                 return new LateBound(SubParser);

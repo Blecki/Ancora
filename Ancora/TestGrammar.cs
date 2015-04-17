@@ -15,8 +15,8 @@ namespace Ancora
             var delimeters = "&%^|<>=,/-+*[]{}() \t\r\n.:;";
             var digits = "0123456789";
             var whitespace = Token(c => " \t\r\n".Contains(c));
-            var identifier = Identifier(c => !digits.Contains(c) && !delimeters.Contains(c), c => !delimeters.Contains(c)).CreateAst("IDENT");
-            var optionalWhitespace = Maybe(whitespace);
+            var id = Identifier(c => !digits.Contains(c) && !delimeters.Contains(c), c => !delimeters.Contains(c)).CreateAst("IDENT");
+            var ws = Maybe(whitespace);
             var number = Token(c => digits.Contains(c)).CreateAst("NUMBER");
 
 
@@ -43,31 +43,31 @@ namespace Ancora
 
             var funcCall = LateBound().CreateAst("FUNCCALL") as Ancora.Parsers.LateBound;
             var op = Operator(opTable).CreateAst("OP");
-            var term = optionalWhitespace + (funcCall | identifier | number).PassThrough() + optionalWhitespace;
+            var term = ws + (funcCall | id | number).PassThrough() + ws;
             var expression = Expression(term, op, opTable);
             var argList = Sequence(
-                optionalWhitespace,
+                ws,
                 Character('('),
-                optionalWhitespace,
-                Maybe(expression * (optionalWhitespace + ',' + optionalWhitespace)).PassThrough(),
-                optionalWhitespace,
+                ws,
+                Maybe(expression * (ws + ',' + ws)).PassThrough(),
+                ws,
                 Character(')')).Flatten();
-            funcCall.SetSubParser(Sequence(identifier, optionalWhitespace, argList).CreateAst("FUNCCALL"));
+            funcCall.SetSubParser(Sequence(id, ws, argList).CreateAst("FUNCCALL"));
             var typeName = LateBound();
 
             var typeIdentifier = (
-                optionalWhitespace +
-                identifier.Value() +
+                ws +
+                id.Value() +
                 Maybe(
-                    (optionalWhitespace + '<' 
-                    + optionalWhitespace 
-                    + (typeName * (optionalWhitespace + ',' + optionalWhitespace)).Flatten()
-                    + optionalWhitespace + '>' + optionalWhitespace)
+                    (ws + '<' 
+                    + ws 
+                    + (typeName * (ws + ',' + ws)).Flatten()
+                    + ws + '>' + ws)
                     .CreateAst("GENERICARGS")
                 ))                    
                 .CreateAst("TYPENAMETOKEN");
 
-            typeName.SetSubParser(DelimitedList(typeIdentifier, Sequence(optionalWhitespace, Character('.'), optionalWhitespace)).CreateAst("TYPENAME"));
+            typeName.SetSubParser(DelimitedList(typeIdentifier, Sequence(ws, Character('.'), ws)).CreateAst("TYPENAME"));
 
             var typeSpecifier = Character(':') + typeName;
 

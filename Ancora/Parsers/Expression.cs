@@ -22,7 +22,7 @@ namespace Ancora.Parsers
             //if (!this.TermParser.ShouldCreateAst) throw new InvalidOperationException("Expression requires term parser to produce an ast node.");
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             return new Expression(TermParser, OperatorParser, OperatorTable);
         }

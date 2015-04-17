@@ -12,54 +12,61 @@ namespace Ancora
         PASSTHROUGH = 1,
         FLATTEN = 2,
         VALUE = 4,
+        IGNORE_LEADING_WHITESPACE = 8,
+        IGNORE_TRAILING_WHITESPACE = 16,
+        CREATE_AST = 32,
     }
 
     public abstract class Parser
     {
         internal String AstNodeType = null;
-        internal bool ShouldCreateAst = false;
+        internal ParserFlags Flags = ParserFlags.NONE;
+
+        #region Flag Modifiers
 
         public Parser CreateAst(String AstNodeType)
         {
-            this.ShouldCreateAst = true;
-            this.AstNodeType = AstNodeType;
-            return this;
+            var r = this.Clone();
+            r.Flags |= ParserFlags.CREATE_AST;
+            r.AstNodeType = AstNodeType;
+            return r;
         }
-
-        internal ParserFlags Flags = ParserFlags.NONE;
 
         public Parser Flatten()
         {
-            var r = this._Clone();
+            var r = this.Clone();
             r.Flags |= ParserFlags.FLATTEN;
             return r;
         }
 
         public Parser Value()
         {
-            var r = this._Clone();
+            var r = this.Clone();
             r.Flags |= ParserFlags.VALUE;
             return r;
         }
 
         public Parser PassThrough()
         {
-            var r = this._Clone();
+            var r = this.Clone();
             r.Flags |= ParserFlags.PASSTHROUGH;
             return r;
         }
 
-        protected Parser _Clone()
+        #endregion
+
+        protected Parser Clone()
         {
-            var r = this.Clone();
+            var r = this.ImplementClone();
             r.Flags = Flags;
             r.AstNodeType = AstNodeType;
-            r.ShouldCreateAst = ShouldCreateAst;
             return r;
         }
 
         public abstract ParseResult Parse(StringIterator InputStream);
-        public abstract Parser Clone();
+        protected abstract Parser ImplementClone();
+
+        #region Construction Ops
 
         public static Parsers.Sequence operator +(Parser LHS, Parser RHS)
         {
@@ -85,6 +92,8 @@ namespace Ancora
         {
             return Grammar.DelimitedList(LHS, RHS);
         }
+
+        #endregion
 
     }
 }

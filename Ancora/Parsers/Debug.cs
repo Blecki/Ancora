@@ -15,7 +15,7 @@ namespace Ancora.Parsers
             this.CallOnParse = CallOnParse;
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             return new Debug(CallOnParse);
         }

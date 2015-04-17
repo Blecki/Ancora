@@ -15,7 +15,7 @@ namespace Ancora.Parsers
             this.SubParser = SubParser;
         }
 
-        public override Parser Clone()
+        protected override Parser ImplementClone()
         {
             return new Maybe(SubParser);
         }
