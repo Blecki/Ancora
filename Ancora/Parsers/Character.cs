@@ -23,7 +23,7 @@ namespace Ancora.Parsers
         protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             if (InputStream.AtEnd || InputStream.Next != Char)
-                return ParseResult.Failure;
+                return Fail("Expected " + Char);
             return new ParseResult 
             { 
                 ParseSucceeded = true, 

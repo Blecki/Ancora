@@ -36,7 +36,7 @@ namespace Ancora.Parsers
                     Flags = Flags
                 };
             else
-                return ParseResult.Failure;
+                return Fail("KeyWord not found");
         }
     }
 }

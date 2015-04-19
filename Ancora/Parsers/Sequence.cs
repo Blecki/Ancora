@@ -49,7 +49,7 @@ namespace Ancora.Parsers
             {
                 var subResult = sub.Parse(InputStream);
                 if (!subResult.ParseSucceeded)
-                    return ParseResult.Failure;
+                    return subResult;
                 InputStream = subResult.StreamState;
 
                 if (subResult.Node != null)

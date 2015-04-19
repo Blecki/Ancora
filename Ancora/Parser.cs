@@ -23,8 +23,34 @@ namespace Ancora
 
         internal String AstNodeType = null;
         internal ParserFlags Flags = ParserFlags.NONE;
+        internal String _Name = null;
+
+        internal ParseResult Fail(String Message, CompoundFailure SubFailures = null)
+        {
+            Failure failReason = SubFailures;
+
+            if (failReason == null) failReason = new Failure(this, Message);
+            else
+            {
+                failReason.FailedAt = this;
+                failReason.Message = Message;
+            }
+
+            return new ParseResult
+            {
+                ParseSucceeded = false,
+                FailReason = failReason
+            };
+        }
 
         #region Flag Modifiers
+
+        public Parser Name(String Name)
+        {
+            var r = this.Clone();
+            r._Name = Name;
+            return r;
+        }
 
         public Parser CreateAst(String AstNodeType)
         {
@@ -117,6 +143,11 @@ namespace Ancora
         public static Parsers.Alternative operator |(Parser LHS, Parser RHS)
         {
             return new Parsers.Alternative(LHS, RHS);
+        }
+
+        public static Parsers.Alternative operator |(Parser LHS, char RHS)
+        {
+            return new Parsers.Alternative(LHS, new Parsers.Character(RHS));
         }
 
         #endregion

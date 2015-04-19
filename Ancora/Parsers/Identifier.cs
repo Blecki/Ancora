@@ -24,7 +24,7 @@ namespace Ancora.Parsers
 
         protected override ParseResult ImplementParse(StringIterator InputStream)
         {
-            if (InputStream.AtEnd || !IsLegalStartCharacter(InputStream.Next)) return ParseResult.Failure;
+            if (InputStream.AtEnd || !IsLegalStartCharacter(InputStream.Next)) return Fail("Unexpected end of stream");
 
             var text = "";
             while (!InputStream.AtEnd && IsLegalCharacter(InputStream.Next))

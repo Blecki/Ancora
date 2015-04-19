@@ -29,14 +29,21 @@ namespace Ancora.Parsers
 
         protected override ParseResult ImplementParse(StringIterator InputStream)
         {
+            CompoundFailure failureReason = null;
+
            foreach (var sub in SubParsers)
            {
                var subResult = sub.Parse(InputStream);
                if (subResult.ParseSucceeded)
                    return subResult.ApplyFlags(this.Flags);
+               else if (subResult.FailReason != null)
+               {
+                   if (failureReason == null) failureReason = new CompoundFailure();
+                   failureReason.CompoundedFailures.Add(subResult.FailReason);
+               }
            }
 
-           return ParseResult.Failure;
+           return Fail("No alternatives matched", failureReason);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Ancora.Parsers
         protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             var firstLhs = TermParser.Parse(InputStream);
-            if (!firstLhs.ParseSucceeded || firstLhs.Node == null) return ParseResult.Failure;
+            if (!firstLhs.ParseSucceeded || firstLhs.Node == null) return Fail("LHS parse failed, or did not produce an AST node.");
 
             return ParseExpression(firstLhs.Node, firstLhs.StreamState, 0);
         }

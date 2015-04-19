@@ -22,7 +22,7 @@ namespace Ancora.Parsers
 
         protected override ParseResult ImplementParse(StringIterator InputStream)
         {
-            if (InputStream.AtEnd) return ParseResult.Failure;
+            if (InputStream.AtEnd) return Fail("Unexpected end of stream");
 
             var opSoFar = "";
             while (true)
@@ -31,7 +31,7 @@ namespace Ancora.Parsers
                 InputStream = InputStream.Advance();
                 var possibleMatches = OperatorTable.PossibleMatches(opSoFar);
                 if (possibleMatches == 0)
-                    return ParseResult.Failure;
+                    return Fail("Unable to match operator");
                 else if (possibleMatches == 1 && OperatorTable.ExactMatches(opSoFar) == 1)
                     return new ParseResult
                     {
@@ -45,7 +45,7 @@ namespace Ancora.Parsers
                         Flags = Flags
                     };
 
-                if (InputStream.AtEnd) return ParseResult.Failure;
+                if (InputStream.AtEnd) return Fail("Unexpected end of stream");
             }
         }
     }

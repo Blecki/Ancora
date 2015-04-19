@@ -12,13 +12,12 @@ namespace Ancora
         public AstNode Node;
         public StringIterator StreamState;
         public ParserFlags Flags;
+        public Failure FailReason;
 
         public bool CheckFlag(ParserFlags Flag)
         {
             return (Flags & Flag) == Flag;
         }
-
-        public static ParseResult Failure = new ParseResult { ParseSucceeded = false };
 
         public ParseResult ApplyFlags(ParserFlags Flags)
         {
@@ -27,7 +26,8 @@ namespace Ancora
                 ParseSucceeded = ParseSucceeded,
                 Node = Node,
                 StreamState = StreamState,
-                Flags = Flags
+                Flags = Flags,
+                FailReason = FailReason,
             };
         }
         

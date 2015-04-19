@@ -47,7 +47,7 @@ namespace Ancora.Parsers
 
         protected override ParseResult ImplementParse(StringIterator InputStream)
         {
-            if (SubParser == null) return ParseResult.Failure;
+            if (SubParser == null) return Fail("LateBound was never bound");
             var result = SubParser.Parse(InputStream);
             result.Flags |= Flags;
             return result;
