@@ -104,6 +104,20 @@ namespace Ancora
             return r;
         }
 
+        public Parsers.Debug Debug(String Message)
+        {
+            var r = new Parsers.Debug(p => Console.WriteLine(Message));
+            r.Flags = DefaultParserFlags;
+            return r;
+        }
+
+        public Parsers.HardError HardError(Parser SubParser)
+        {
+            var r = new Parsers.HardError(SubParser);
+            r.Flags = DefaultParserFlags;
+            return r;
+        }
+
         public Parser DelimitedList(Parser TermParser, Parser SeperatorParser)
         {
             var r = Sequence(
@@ -121,15 +135,7 @@ namespace Ancora
 
         public Parser DelimitedList(Parser TermParser, char SeperatorChar)
         {
-            var r = Sequence(
-                    TermParser,
-                    NoneOrMany(
-                        Sequence(
-                            Character(SeperatorChar),
-                            TermParser.PassThrough()
-                        )
-                    ).Flatten()
-                );
+            var r = TermParser + NoneOrMany(Debug("looking for: " + SeperatorChar) + Character(SeperatorChar) + Debug("term time") + TermParser.PassThrough()).Flatten();
             r.Flags = DefaultParserFlags;
             return r;
         }

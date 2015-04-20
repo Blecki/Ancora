@@ -38,10 +38,10 @@ namespace CILGenerationTest
                 var itr = new Ancora.StringIterator(input);
 
                 var r = tGrammar.Root.Parse(itr);
-                if (!r.StreamState.AtEnd && r.FailReason == null)
+                if (r.ResultType == Ancora.ResultType.Success && !r.StreamState.AtEnd && r.FailReason == null)
                     r.FailReason = new Ancora.Failure(tGrammar.Root, "Did not consume all input.");
 
-                if (r.ParseSucceeded && r.StreamState.AtEnd)
+                if (r.ResultType == Ancora.ResultType.Success && r.StreamState.AtEnd)
                 {
                     Console.WriteLine("Parsed.");
                     EmitAst(r.Node);

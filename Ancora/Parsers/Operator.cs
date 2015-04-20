@@ -35,7 +35,7 @@ namespace Ancora.Parsers
                 else if (possibleMatches == 1 && OperatorTable.ExactMatches(opSoFar) == 1)
                     return new ParseResult
                     {
-                        ParseSucceeded = true,
+                        ResultType = ResultType.Success,
                         Node = (Flags & ParserFlags.CREATE_AST) == ParserFlags.CREATE_AST ? new AstNode
                         {
                             NodeType = AstNodeType,

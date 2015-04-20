@@ -34,7 +34,8 @@ namespace Ancora.Parsers
            foreach (var sub in SubParsers)
            {
                var subResult = sub.Parse(InputStream);
-               if (subResult.ParseSucceeded)
+               if (subResult.ResultType == ResultType.HardError) return subResult;
+               else if (subResult.ResultType == ResultType.Success)
                    return subResult.ApplyFlags(this.Flags);
                else if (subResult.FailReason != null)
                {

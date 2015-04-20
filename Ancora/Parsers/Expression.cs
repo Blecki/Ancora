@@ -17,9 +17,6 @@ namespace Ancora.Parsers
             this.TermParser = TermParser;
             this.OperatorParser = OperatorParser;
             this.OperatorTable = OperatorTable;
-
-            //if (!this.OperatorParser.ShouldCreateAst) throw new InvalidOperationException("Expression requires operator parser to produce an ast node.");
-            //if (!this.TermParser.ShouldCreateAst) throw new InvalidOperationException("Expression requires term parser to produce an ast node.");
         }
 
         protected override Parser ImplementClone()
@@ -30,7 +27,8 @@ namespace Ancora.Parsers
         protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             var firstLhs = TermParser.Parse(InputStream);
-            if (!firstLhs.ParseSucceeded || firstLhs.Node == null) return Fail("LHS parse failed, or did not produce an AST node.");
+            if (firstLhs.ResultType == ResultType.HardError) return firstLhs;
+            if (firstLhs.ResultType != ResultType.Success || firstLhs.Node == null) return Fail("LHS parse failed, or did not produce an AST node.");
 
             return ParseExpression(firstLhs.Node, firstLhs.StreamState, 0);
         }
@@ -40,22 +38,25 @@ namespace Ancora.Parsers
             while (true)
             {
                 var opParser = OperatorParser.Parse(InputStream);
-                if (!opParser.ParseSucceeded)
-                    return new ParseResult { Node = LHS, ParseSucceeded = true, StreamState = InputStream };
+                if (opParser.ResultType == ResultType.HardError) return opParser;
+                else if (opParser.ResultType == ResultType.Failure)
+                    return new ParseResult { Node = LHS, ResultType = ResultType.Success, StreamState = InputStream };
 
                 var precedence = OperatorTable.FindPrecedence(opParser.Node.Value.ToString());
-                if (precedence < MinimumPrecedence) return new ParseResult { Node = LHS, ParseSucceeded = true, StreamState = InputStream };
+                if (precedence < MinimumPrecedence) return new ParseResult { Node = LHS, ResultType = ResultType.Success, StreamState = InputStream };
 
                 var op = opParser.Node.Value.ToString();
                 InputStream = opParser.StreamState;
                 var rhsParse = TermParser.Parse(InputStream);
 
-                if (!rhsParse.ParseSucceeded) return new ParseResult { ParseSucceeded = false };
+                if (rhsParse.ResultType == ResultType.HardError) return rhsParse;
+                else if (rhsParse.ResultType == ResultType.Failure) return rhsParse;
 
                 while (true)
                 {
                     opParser = OperatorParser.Parse(rhsParse.StreamState);
-                    if (opParser.ParseSucceeded)
+                    if (opParser.ResultType == ResultType.HardError) return opParser;
+                    else if (opParser.ResultType == ResultType.Success)
                     {
                         var nextPrecedence = OperatorTable.FindPrecedence(opParser.Node.Value.ToString());
                         if (nextPrecedence > precedence)

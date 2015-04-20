@@ -35,7 +35,7 @@ namespace Ancora.Parsers
 
             return new ParseResult
             {
-                ParseSucceeded = true,
+                ResultType = Ancora.ResultType.Success,
                 Node = new AstNode
                 {
                     NodeType = String.IsNullOrEmpty(AstNodeType) ? "UNNAMED" : AstNodeType,

@@ -38,7 +38,7 @@ namespace Ancora
 
             return new ParseResult
             {
-                ParseSucceeded = false,
+                ResultType = ResultType.Failure,
                 FailReason = failReason
             };
         }
@@ -110,7 +110,7 @@ namespace Ancora
             if ((Flags & ParserFlags.IGNORE_LEADING_WHITESPACE) == ParserFlags.IGNORE_LEADING_WHITESPACE)
                 InputStream = Parser.WhitespaceParser.Parse(InputStream).StreamState;
             var r = ImplementParse(InputStream);
-            if (r.ParseSucceeded && (Flags & ParserFlags.IGNORE_TRAILING_WHITESPACE) == ParserFlags.IGNORE_TRAILING_WHITESPACE)
+            if (r.ResultType == ResultType.Success && (Flags & ParserFlags.IGNORE_TRAILING_WHITESPACE) == ParserFlags.IGNORE_TRAILING_WHITESPACE)
                 r.StreamState = Parser.WhitespaceParser.Parse(r.StreamState).StreamState;
             return r;
         }

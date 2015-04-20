@@ -48,6 +48,7 @@
     <Compile Include="ParseResult.cs" />
     <Compile Include="Parsers\Expression.cs" />
     <Compile Include="Parsers\Alternative.cs" />
+    <Compile Include="Parsers\HardError.cs" />
     <Compile Include="Parsers\Operator.cs" />
     <Compile Include="Parsers\KeyWord.cs" />
     <Compile Include="Parsers\Maybe.cs" />

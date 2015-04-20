@@ -6,32 +6,29 @@ using System.Threading.Tasks;
 
 namespace Ancora.Parsers
 {
-    public class Maybe : Parser
+    public class HardError : Parser
     {
         private Parser SubParser;
 
-        public Maybe(Parser SubParser)
+        public HardError(Parser SubParser)
         {
             this.SubParser = SubParser;
         }
 
         protected override Parser ImplementClone()
         {
-            return new Maybe(SubParser);
+            return new HardError(SubParser);
         }
 
         protected override ParseResult ImplementParse(StringIterator InputStream)
         {
             var subResult = SubParser.Parse(InputStream);
             if (subResult.ResultType == ResultType.Success) return subResult.ApplyFlags(Flags);
-            else if (subResult.ResultType == ResultType.HardError) return subResult;
-            else return new ParseResult
+            else
             {
-                ResultType = ResultType.Success,
-                Node = null,
-                StreamState = InputStream,
-                Flags = Flags
-            };
+                subResult.ResultType = ResultType.HardError;
+                return subResult;
+            }
         }
     }
 }

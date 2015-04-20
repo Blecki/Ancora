@@ -23,6 +23,9 @@ namespace Ancora
 
             var opTable = new OperatorTable();
 
+            opTable.AddOperator(".", 5);
+            opTable.AddOperator("@", 5);
+
             opTable.AddOperator("&&", 1);
             opTable.AddOperator("||", 1);
             opTable.AddOperator("==", 1);
@@ -45,17 +48,14 @@ namespace Ancora
 
             #endregion
 
-            var expression = LateBound();
             var statement = LateBound();
-            var funcCall = LateBound().CreateAst("FUNCCALL") as Ancora.Parsers.LateBound;
-            var term = LateBound();
-            var macroInvokation = LateBound();
+            var expression = LateBound();
 
             #region Type Names
             var typeName = LateBound();
             var typeIdentifier = (id.Value() + Maybe(('<' + DelimitedList(typeName, ',').Flatten() + '>').CreateAst("GENERICARGS"))).CreateAst("TYPENAMETOKEN");
             typeName.SetSubParser(DelimitedList(typeIdentifier, '.').CreateAst("TYPENAME"));
-            var typeSpecifier = ':' + typeName;
+            var typeSpecifier = Character(':') + typeName.PassThrough();
             #endregion
 
             #region Strings
@@ -76,10 +76,9 @@ namespace Ancora
 
             #region Blocks and Bodies
 
-            var lambdaExpression = Keyword("=>") + expression;
-            var block = '{' + NoneOrMany(statement) + '}';
-            var body = statement | block;
-            var functionBlock = body + Maybe(Keyword("error" + body)) + Maybe(Keyword("post" + body));
+            var block = (Character('{') + NoneOrMany(statement).PassThrough() + '}').CreateAst("BLOCK");
+            var body = block | statement;
+            var functionBlock = body + Maybe(Keyword("error" + body)).CreateAst("ERROR") + Maybe(Keyword("post" + body)).CreateAst("POST");
 
             #endregion
 
@@ -92,66 +91,50 @@ namespace Ancora
                 Maybe(whenClause) + functionBlock;
             var rule = Keyword("rule") + ruleDeclaration;
 
-            var functionDeclaration = id + '(' + Maybe(DelimitedList(id + typeSpecifier, ',')) + ')' + typeSpecifier + functionBlock;
+            var functionDeclaration = (id.CreateAst("NAME") + '(' + Maybe(DelimitedList((id + typeSpecifier).CreateAst("ARG"), ',').Flatten()) + ')' + typeSpecifier.CreateAst("RETURNTYPE") + functionBlock.CreateAst("BODY")).CreateAst("FUNC");
             var methodDeclaration = Keyword("method") + functionDeclaration;
             var fieldDeclaration = Keyword("var") + id + typeSpecifier + Maybe(expression) + ';';
             var memberDeclaration = fieldDeclaration | methodDeclaration | rule;
             var typeDeclaration = Keyword("type") + typeIdentifier + Maybe(typeSpecifier) + '{' + NoneOrMany(memberDeclaration) + '}';
             var declarationTerm = id | ( '(' + id + typeSpecifier + ')' );
-            var macro = Keyword("macro") + OneOrMany(declarationTerm) + Maybe(typeSpecifier) + functionBlock;
-            var function = Keyword("func") + functionDeclaration;
+            var macro = Keyword("macro") + id + OneOrMany(declarationTerm) + Maybe(typeSpecifier) + functionBlock;
+            var function = Keyword("func") + HardError(functionDeclaration).PassThrough();
             var _namespace = Keyword("namespace") + typeIdentifier + '{' + NoneOrMany(typeDeclaration) + '}';
 
-            var headerUsing = Keyword("using") + typeName + ';';
+            var headerUsing = (Keyword("using") + typeName.Value() + ';').CreateAst("USING");
             var headerBlock = NoneOrMany(headerUsing);
 
-            var file = headerBlock + NoneOrMany(_namespace | typeDeclaration | function | macro | rule);
-
-            var lambda = Keyword("lambda") + functionDeclaration;
+            var file = (headerBlock.Flatten() + NoneOrMany(_namespace | typeDeclaration | function | macro | rule).Flatten()).CreateAst("ROOT");
 
             #endregion
-
-            #region New
+                        
+            #region Terms and Operators
+            var term = LateBound();
+            var op = Operator(opTable).CreateAst("OP");
+            expression.SetSubParser(Expression(term, op, opTable));
+            var parenthetical = '(' + expression + ')';
+            var argList = ('(' + Maybe(DelimitedList(expression, Character(','))).PassThrough() + ')').Flatten();
+            var invokation = id + OneOrMany(term | id | argList) + (functionBlock | ';');
+            var cast = Keyword(">>>") + typeName;
+            var indexer = Character('@') + term;
+            var memberAccess = Character('.') + id;
+            var bracketInvokation = '[' + id + OneOrMany(term | id | argList) + Maybe(functionBlock) + ']';
+            var list = '{' + Maybe(DelimitedList(term, ',')) + '}';
             var memberInitializer = Keyword("let") + id + "=" + expression + ";";
             var memberInitializerBlock = '{' + NoneOrMany(memberInitializer) + '}';
             var _new = Keyword("new") + typeName + (memberInitializerBlock | ';');
-            #endregion
-
-            #region Function Calls
-
-            var argList = ('(' + Maybe(DelimitedList(expression, Character(','))).PassThrough() + ')').Flatten();
-            funcCall.SetSubParser((term + argList).CreateAst("FUNCCALL"));
-            macroInvokation.SetSubParser(OneOrMany(term | id | argList) + (functionBlock | ';'));
-            var consider = Keyword("consider") + ruleName + argList;
-            var follow = Keyword("follow") + ruleName + argList;
-            var _value = Keyword("value") + Maybe(Keyword("of")) + ruleName + argList;
-
-            #endregion
-
-            #region Terms and Operators
-
-            var parenthetical = '(' + expression + ')';
-            var op = Operator(opTable).CreateAst("OP");
-            expression.SetSubParser(Expression(term, op, opTable));
-            var indexer = term + '@' + term;
-            var memberAccess = term + '.' + id;
-            var cast = term + Keyword(">>>") + typeName;
-            var bracketInvokation = '[' + macroInvokation + ']';
-            var list = '{' + Maybe(DelimitedList(term, ',')) + '}';
-            term.SetSubParser((consider | follow | _value | funcCall | memberAccess | indexer | cast | id | number | _new | _string | complexString | parenthetical | bracketInvokation | list | lambda).PassThrough());
-            
+            term.SetSubParser(((id.PassThrough() | number.PassThrough() | _new.PassThrough() | _string.PassThrough() | complexString.PassThrough() | parenthetical.PassThrough() | bracketInvokation.PassThrough() | list.PassThrough()) + NoneOrMany(argList | indexer | cast | memberAccess).Flatten()).CreateAst("TERM"));
             #endregion
 
             #region Statements
-            var local = Keyword("var") + id + Maybe(typeSpecifier) + Maybe('=' + expression);
-            var lvalue = id | memberAccess | indexer;
-            var let = Keyword("let") + lvalue + '=' + expression;
-            var _if = Keyword("if") + parenthetical + functionBlock + Maybe(Keyword("else") + functionBlock);
-            var loop = Keyword("loop") + Maybe(id) + functionBlock;
-            var _break = Keyword("break") + Maybe(id);
-            var _continue = Keyword("continue") + Maybe(id);
-            var _return = Keyword("return") + Maybe(expression);
-            statement.SetSubParser( ((local | let | _if | loop | _break | _continue | _return | consider | follow | funcCall) + ';') | macroInvokation);
+            var local = (Keyword("var") + id.Value() + typeSpecifier + '=' + expression + ';').CreateAst("LOCAL");
+            var let = (Keyword("let") + term + '=' + expression + ';').CreateAst("LET");
+            var _if = (Keyword("if") + parenthetical.CreateAst("CONDITION") + functionBlock.CreateAst("THEN") + Maybe(Keyword("else") + functionBlock.CreateAst("ELSE").PassThrough())).CreateAst("IF");
+            var loop = (Keyword("loop") + Maybe(id.CreateAst("LABEL")) + functionBlock).CreateAst("LOOP");
+            var _break = (Keyword("break") + Maybe(id.Value()) + ';').CreateAst("BREAK");
+            var _continue = (Keyword("continue") + Maybe(id.Value()) + ';').CreateAst("CONTINUE");
+            var _return = (Keyword("return") + Maybe(expression.CreateAst("VALUE")) + ';').CreateAst("RETURN");
+            statement.SetSubParser(_if | loop | local | let | _break | _continue | _return | invokation);
             #endregion
 
             this.Root = file;

@@ -48,8 +48,7 @@ namespace Ancora.Parsers
             foreach (var sub in SubParsers)
             {
                 var subResult = sub.Parse(InputStream);
-                if (!subResult.ParseSucceeded)
-                    return subResult;
+                if (subResult.ResultType != ResultType.Success) return subResult;
                 InputStream = subResult.StreamState;
 
                 if (subResult.Node != null)
@@ -64,9 +63,13 @@ namespace Ancora.Parsers
                         r.Children.Add(subResult.Node);
                 }
             }
+
+            if (passThroughChild != null && (Flags & ParserFlags.CREATE_AST) == ParserFlags.CREATE_AST)
+                passThroughChild.NodeType = AstNodeType;
+
             return new ParseResult
             {
-                ParseSucceeded = true,
+                ResultType = ResultType.Success,
                 StreamState = InputStream,
                 Node = passThroughChild == null ? r : passThroughChild,
                 Flags = Flags

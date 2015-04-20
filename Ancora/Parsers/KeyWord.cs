@@ -26,7 +26,7 @@ namespace Ancora.Parsers
             if (text == Word)
                 return new ParseResult
                 {
-                    ParseSucceeded = true,
+                    ResultType = Ancora.ResultType.Success,
                     Node = ((Flags & ParserFlags.CREATE_AST) == ParserFlags.CREATE_AST) ? new AstNode
                     {
                         NodeType = AstNodeType,

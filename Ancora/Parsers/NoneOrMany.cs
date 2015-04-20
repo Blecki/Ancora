@@ -28,7 +28,8 @@ namespace Ancora.Parsers
             while (true)
             {
                 var subResult = SubParser.Parse(InputStream);
-                if (subResult.ParseSucceeded)
+                if (subResult.ResultType == ResultType.HardError) return subResult;
+                else if (subResult.ResultType == ResultType.Success)
                 {
                     InputStream = subResult.StreamState;
                     if (subResult.Node != null)
@@ -46,7 +47,7 @@ namespace Ancora.Parsers
                 else
                     return new ParseResult
                     {
-                        ParseSucceeded = true,
+                        ResultType = ResultType.Success, //Acceptable to match none.
                         Node = passThroughChild == null ? r : passThroughChild,
                         StreamState = InputStream,
                         Flags = Flags

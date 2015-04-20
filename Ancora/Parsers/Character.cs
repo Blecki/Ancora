@@ -26,7 +26,7 @@ namespace Ancora.Parsers
                 return Fail("Expected " + Char);
             return new ParseResult 
             { 
-                ParseSucceeded = true, 
+                ResultType = ResultType.Success, 
                 Node = ((Flags & ParserFlags.CREATE_AST) == ParserFlags.CREATE_AST) ? new AstNode { NodeType = AstNodeType, Value = Char } : null,
                 StreamState = InputStream.Advance(),
                 Flags = Flags

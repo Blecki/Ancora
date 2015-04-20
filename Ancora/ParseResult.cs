@@ -6,9 +6,16 @@ using System.Threading.Tasks;
 
 namespace Ancora
 {
+    public enum ResultType
+    {
+        Success,
+        Failure,
+        HardError
+    }
+
     public struct ParseResult
     {
-        public bool ParseSucceeded;
+        public ResultType ResultType;
         public AstNode Node;
         public StringIterator StreamState;
         public ParserFlags Flags;
@@ -23,7 +30,7 @@ namespace Ancora
         {
             return new ParseResult
             {
-                ParseSucceeded = ParseSucceeded,
+                ResultType = ResultType,
                 Node = Node,
                 StreamState = StreamState,
                 Flags = Flags,
